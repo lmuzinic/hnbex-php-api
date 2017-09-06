@@ -1,0 +1,28 @@
+language: php
+sudo: false
+
+php:
+  - 7.1
+
+env:
+  - SUITE=unit
+  - SUITE=integration
+
+matrix:
+  fast_finish: true
+  allow_failures:
+    - env: SUITE=integration
+
+cache:
+  directories:
+    - "$HOME/.composer/cache"
+
+before_install:
+  - echo "Disable xdebug" && phpenv config-rm xdebug.ini
+  - travis_retry composer self-update
+
+install:
+  - composer update --prefer-source
+
+script:
+  - ./vendor/bin/phpunit --testsuite $SUITE
