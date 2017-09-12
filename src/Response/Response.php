@@ -6,5 +6,5 @@ namespace Hnbex\Response;
 interface Response
 {
     public function isCached(): bool;
-    public function getContent(): string;
+    public function getContent();
 }

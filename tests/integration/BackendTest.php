@@ -4,6 +4,7 @@ namespace Hnbex\integration;
 
 
 use Cache\Adapter\Filesystem\FilesystemCachePool;
+use Hnbex\Normalizer\ContentDenormalizer;
 use Hnbex\Provider\Backend;
 use Hnbex\Request\OnDate;
 use Http\Adapter\Guzzle6\Client;

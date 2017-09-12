@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Hnbex\Provider;
 
+use Hnbex\Normalizer\ContentDenormalizer;
+use Hnbex\Response\Collection;
 use Http\Client\HttpClient;
 use Hnbex\Response\Response;
 use Hnbex\Response\Json;
@@ -10,6 +12,7 @@ use Hnbex\Request\Request;
 use Http\Discovery\MessageFactoryDiscovery;
 use Http\Message\MessageFactory;
 use Psr\SimpleCache\CacheInterface;
+use Symfony\Component\Serializer\Serializer;
 
 class Backend implements Provider
 {
@@ -18,7 +21,15 @@ class Backend implements Provider
      */
     private $httpClient;
 
+    /**
+     * @var CacheInterface
+     */
     private $cachePool;
+
+    /**
+     * @var ContentDenormalizer
+     */
+    private $denormalizer;
 
     /**
      * @var MessageFactory;
@@ -32,17 +43,22 @@ class Backend implements Provider
     {
         $this->httpClient = $httpClient;
         $this->cachePool = $cachePool;
+
+        $this->denormalizer = new ContentDenormalizer();
     }
 
     /**
      * @param Request $request
      * @return Response
      */
-    public function send(Request $request)
+    public function send(Request $request): Response
     {
         if ($this->cachePool->has($request->getCacheKey())) {
-            return Json::create(
-                $this->cachePool->get($request->getCacheKey()),
+            $cachedJsonContent = $this->cachePool->get($request->getCacheKey());
+            $collectionContent = $this->denormalizer->denormalize($cachedJsonContent);
+
+            return Collection::create(
+                $collectionContent,
                 true
             );
         }
@@ -53,14 +69,19 @@ class Backend implements Provider
         );
 
         $response = $this->httpClient->sendRequest($httpRequest);
+
         $jsonContent = $response->getBody()->getContents();
+        $collectionContent = $this->denormalizer->denormalize($jsonContent);
 
         $this->cachePool->set(
             $request->getCacheKey(),
             $jsonContent
         );
 
-        return Json::create($jsonContent, false);
+        return Collection::create(
+            $collectionContent,
+            false
+        );
     }
 
     /**
