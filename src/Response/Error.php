@@ -28,7 +28,7 @@ class Error implements Response
         return $this->cached;
     }
 
-    public function getContent(): CurrencyExchangeRateCollection
+    public function getContent(): ErrorMessage
     {
         return $this->content;
     }
