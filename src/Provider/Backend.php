@@ -3,7 +3,8 @@ declare(strict_types=1);
 
 namespace Hnbex\Provider;
 
-use Hnbex\Normalizer\ContentDenormalizer;
+use Hnbex\Response\Error;
+use Hnbex\Normalizer\ResponseDenormalizer;
 use Hnbex\Response\Collection;
 use Http\Client\HttpClient;
 use Hnbex\Response\Response;
@@ -27,7 +28,7 @@ class Backend implements Provider
     private $cachePool;
 
     /**
-     * @var ContentDenormalizer
+     * @var ResponseDenormalizer
      */
     private $denormalizer;
 
@@ -44,7 +45,7 @@ class Backend implements Provider
         $this->httpClient = $httpClient;
         $this->cachePool = $cachePool;
 
-        $this->denormalizer = new ContentDenormalizer();
+        $this->denormalizer = new ResponseDenormalizer();
     }
 
     /**
@@ -54,8 +55,7 @@ class Backend implements Provider
     public function send(Request $request): Response
     {
         if ($this->cachePool->has($request->getCacheKey())) {
-            $cachedJsonContent = $this->cachePool->get($request->getCacheKey());
-            $collectionContent = $this->denormalizer->denormalize($cachedJsonContent);
+            $collectionContent = $this->cachePool->get($request->getCacheKey());
 
             return Collection::create(
                 $collectionContent,
@@ -69,16 +69,21 @@ class Backend implements Provider
         );
 
         $response = $this->httpClient->sendRequest($httpRequest);
+        $collectionContent = $this->denormalizer->denormalize($response);
 
-        $jsonContent = $response->getBody()->getContents();
-        $collectionContent = $this->denormalizer->denormalize($jsonContent);
+        if ($response->getStatusCode() === 200) {
+            $this->cachePool->set(
+                $request->getCacheKey(),
+                $collectionContent
+            );
 
-        $this->cachePool->set(
-            $request->getCacheKey(),
-            $jsonContent
-        );
+            return Collection::create(
+                $collectionContent,
+                false
+            );
+        }
 
-        return Collection::create(
+        return Error::create(
             $collectionContent,
             false
         );

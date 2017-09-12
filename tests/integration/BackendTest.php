@@ -4,7 +4,7 @@ namespace Hnbex\integration;
 
 
 use Cache\Adapter\Filesystem\FilesystemCachePool;
-use Hnbex\Normalizer\ContentDenormalizer;
+use Hnbex\Normalizer\ResponseDenormalizer;
 use Hnbex\Provider\Backend;
 use Hnbex\Request\OnDate;
 use Http\Adapter\Guzzle6\Client;
@@ -29,6 +29,7 @@ class BackendTest extends \PHPUnit_Framework_TestCase
 
         $filesystemAdapter = new Local('var');
         $filesystem        = new Filesystem($filesystemAdapter);
+        $filesystem->deleteDir('cache');
 
         $this->cache = new FilesystemCachePool($filesystem);
     }
@@ -45,6 +46,14 @@ class BackendTest extends \PHPUnit_Framework_TestCase
     {
         $backend = new Backend($this->adapter, $this->cache);
         $response = $backend->send(OnDate::fromString('today'));
+
+        $this->assertNotEmpty($response);
+    }
+
+    public function testSendActualRequestForWeirdDate()
+    {
+        $backend = new Backend($this->adapter, $this->cache);
+        $response = $backend->send(OnDate::fromString('Jan 31st 1996'));
 
         $this->assertNotEmpty($response);
     }

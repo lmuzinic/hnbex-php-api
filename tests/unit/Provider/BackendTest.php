@@ -5,7 +5,7 @@ namespace Hnbex\Provider;
 
 use Cache\Adapter\Void\VoidCachePool;
 use Hnbex\Common\CurrencyExchangeRateCollection;
-use Hnbex\Normalizer\ContentDenormalizer;
+use Hnbex\Normalizer\ResponseDenormalizer;
 use Hnbex\Request\OnDate;
 use Hnbex\Response\Response;
 use Http\Client\HttpClient;
@@ -31,6 +31,7 @@ class BackendTest extends \PHPUnit_Framework_TestCase
         $this->stream = $this->createMock(StreamInterface::class);
 
         $client->method('sendRequest')->willReturn($response);
+        $response->method('getStatusCode')->willReturn(200);
         $response->method('getBody')->willReturn($this->stream);
 
         $cachePool = new VoidCachePool();
