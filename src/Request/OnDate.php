@@ -39,7 +39,7 @@ class OnDate implements Request
         return new static($dateTime->format('Y-m-d'));
     }
 
-    public static function fromString(string $date): OnDate
+    public static function fromString(string $date = 'now'): OnDate
     {
         return static::fromDateTime(new \DateTimeImmutable($date));
     }
