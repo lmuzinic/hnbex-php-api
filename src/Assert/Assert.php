@@ -13,12 +13,12 @@ class Assert
 
         $interval = $start->diff($date);
         if ($interval->invert === 1) {
-            throw new \InvalidArgumentException('Date should be between 1994-05-30 and today');
+            throw new \InvalidArgumentException('Date should be between 1994-05-30 and today. ' . $date->format('Y-m-d') . ' given.');
         }
 
         $interval = $date->diff($end);
-        if ($interval->invert === 1) {
-            throw new \InvalidArgumentException('Date should be between 1994-05-30 and today');
+        if ($interval->invert === 1 && $interval->days > 0) {
+            throw new \InvalidArgumentException('Date should be between 1994-05-30 and today. ' . $date->format('Y-m-d') . ' given.');
         }
     }
 }
