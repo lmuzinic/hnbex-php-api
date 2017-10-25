@@ -17,10 +17,6 @@ cache:
   directories:
     - "$HOME/.composer/cache"
 
-before_install:
-  - echo "Disable xdebug" && phpenv config-rm xdebug.ini
-  - travis_retry composer self-update
-
 install:
   - composer update --prefer-source
 
