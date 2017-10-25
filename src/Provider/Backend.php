@@ -100,16 +100,4 @@ class Backend implements Provider
 
         return $this->messageFactory;
     }
-
-    /**
-     * @codeCoverageIgnore
-     * @param MessageFactory $messageFactory
-     * @return Backend
-     */
-    public function setMessageFactory(MessageFactory $messageFactory)
-    {
-        $this->messageFactory = $messageFactory;
-
-        return $this;
-    }
 }
