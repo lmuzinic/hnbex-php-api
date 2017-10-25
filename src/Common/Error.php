@@ -26,7 +26,7 @@ class Error
     /**
      * @param string $message
      */
-    public function setMessage(string $message)
+    private function setMessage(string $message)
     {
         $this->message = $message;
     }
