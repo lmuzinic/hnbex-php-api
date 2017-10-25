@@ -33,7 +33,7 @@ class Collection implements Response
         return $this->content;
     }
 
-    public static function create($content, $cached)
+    public static function create(CurrencyExchangeRateCollection $content, bool $cached)
     {
         return new static($content, $cached);
     }
